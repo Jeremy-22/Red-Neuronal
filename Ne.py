@@ -9,7 +9,7 @@ class Network(object):
                         for x, y in zip(sizes[:-1], sizes[1:])]
     def feedforward(self, a):   
         for b, w in zip(self.biases, self.weights):
-            a =  self.sigmoid(np.dot(w, a)+b)
+            a = Network.sigmoid(np.dot(w, a)+b)
         return a
     def SGD_momentum(self, training_data, epochs, mini_batch_size, eta, momentum,
             test_data=None):
@@ -59,7 +59,7 @@ class Network(object):
             activation = Network.sigmoid(z)
             activations.append(activation)
 
-        delta = self.cost_derivative(activations[-1], y) * \
+        delta = self.binary_cross_entropy_derivative(activations[-1], y) * \
               Network.sigmoid_prime(zs[-1]) #La implementamos sobre backprop
         nabla_b[-1] = delta
         nabla_w[-1] = np.dot(delta, activations[-2].transpose())
@@ -73,14 +73,13 @@ class Network(object):
             nabla_b[-l] = delta 
             nabla_w[-l] = np.dot(delta, activations[-l-1].transpose())
         return (nabla_b, nabla_w) 
-
     def evaluate(self, test_data):  
         test_results = [(np.argmax(self.feedforward(x)), y)
                         for (x, y) in test_data]
         return sum(int(x == y) for (x, y) in test_results)
     def cost_derivative(self, output_activations, y):
         return (output_activations-y)
-    def binary_cross_entropy(self, output_activations, y):#definimos la funcion binary cross-entroy
+    def binary_cross_entropy_loss(self, output_activations, y):#definimos la funcion binary cross-entroy
         output_activations = np.clip(output_activations, 1e-15, 1 - 1e-15)# para que vaya de 0 o 1
         loss = -np.mean((y * np.log(output_activations) + (1 - y) * np.log(1 - output_activations)))
         return loss
